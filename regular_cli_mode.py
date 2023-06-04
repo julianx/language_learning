@@ -78,6 +78,5 @@ def main(argv):
         shuffle(game_list)
 
 
-
 if __name__ == "__main__":
     main(sys.argv[1:])
