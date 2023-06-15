@@ -126,7 +126,7 @@ def main(stdscr):
             rectangle(stdscr, 1, 0, 1 + 5 + 1, 1 + 30 + 1)
             stdscr.refresh()
 
-            box = Textbox(editwin)
+            box = Textbox(editwin, insert_mode=True)
 
             # Let the user edit until Ctrl-G is struck.
             box.edit()
