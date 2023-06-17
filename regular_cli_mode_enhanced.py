@@ -5,31 +5,43 @@ import threading
 from random import shuffle
 
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
 class Word(object):
     def __init__(self, word, meaning=""):
         self.word = word
         self.meaning = meaning
-        self.challenge = self.word
-        self.challenge_str = f"{self.challenge} "
+        self.challenge_str = f"{self.word} "
 
     def __str__(self):
         if self.meaning:
-            return f"{self.challenge_str} {self.meaning}"
+            return f"{self.challenge_str} {self.meaning}　"
         else:
-            return f"{self.challenge_str}"
+            return f"{self.word}"
 
     def check(self, answer):
-        return answer == self.challenge
+        self.pronounce()
+        return answer == self.word
 
     def pronounce(self):
-        thread = threading.Thread(target=self.thread_function, args=(self.word,))
+        thread = threading.Thread(target=self.thread_function, args=())
         thread.start()
 
     def thread_function(self):
-        if len(self.challenge) == 1:
-            subprocess.run(["say", self.challenge])
+        if len(self.word) == 1:
+            subprocess.run(["say", self.word])
         else:
-            command = ["say"] + self.challenge.split()
+            command = ["say"] + self.word.split()
             subprocess.run(command)
 
 
@@ -39,7 +51,6 @@ class KanjiWord(Word):
         self.kanji = kanji
 
         if self.kanji and self.word:
-            self.challenge = self.word
             self.challenge_str = f"{self.kanji} / {self.word} "
 
 
@@ -158,36 +169,29 @@ def populate_word_list():
 
 
 def main(argv):
-    game_list = []
     word_list = populate_word_list()
-    for word in word_list:
-        instance = Word(word)
-        game_list.append(instance)
 
     done = False
     score = 0
     max_score = 100
     print("Japanese practice game! Type in the word you see, mirroring the output. Try getting to 100.")
     while not done and score < max_score:
-        for word in game_list:
+        for word in word_list:
             print(f"Score: {score}")
-            thread = threading.Thread(target=thread_function, args=(word,))
-            answer = input(word.challenge_str)
+            answer = input(word)
             if answer in ["q", "Q", "quit"]:
                 done = True
-            elif answer == word.hiragana:
+            elif word.check(answer=answer):
                 score += 1
-                print("Correct", word)
+                print(bcolors.OKGREEN, "Correct", word, bcolors.ENDC)
             else:
                 score -= 10
-                print("Wrong!", word)
-            thread.start()
+                print(bcolors.FAIL, "Wrong!", bcolors.ENDC)
             if score >= max_score:
-                print("Congrats! You have reached the target score.")
-                print(f"Score: {score}")
+                print(bcolors.OKCYAN, "Congrats! You have reached the target score.", f"Score: {score}", bcolors.ENDC)
                 done = True
                 break
-        shuffle(game_list)
+        shuffle(word_list)
 
 
 if __name__ == "__main__":
